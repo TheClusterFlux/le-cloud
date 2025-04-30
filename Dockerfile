@@ -4,7 +4,6 @@ FROM nginx:stable-alpine
 COPY index.html /usr/share/nginx/html/
 COPY scripts/ /usr/share/nginx/html/scripts/
 COPY styles/ /usr/share/nginx/html/styles/
-COPY public/ /usr/share/nginx/html/public/
 
 # Configure Nginx to serve the app on port 8080 to match the Kubernetes config
 RUN sed -i 's/listen\s*80;/listen 8080;/g' /etc/nginx/conf.d/default.conf
