@@ -1,0 +1,57 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: le-cloud
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: le-cloud
+  template:
+    metadata:
+      labels:
+        app: le-cloud
+    spec:
+      containers:
+        - name: le-cloud
+          image: docker.io/keanuwatts/theclusterflux:le-cloud
+          imagePullPolicy: Always
+      imagePullSecrets:
+        - name: dockerhub-secret
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: le-cloud
+spec:
+  selector:
+    app: le-cloud
+  ports:
+    - protocol: TCP
+      port: 8080
+      targetPort: 8080
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: le-cloud
+  namespace: default
+  annotations:
+    nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
+spec:
+  ingressClassName: nginx
+  tls:
+  - hosts:
+    - le-cloud.theclusterflux.com
+    secretName: theclusterflux
+  rules:
+  - host: le-cloud.theclusterflux.com
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: le-cloud
+            port:
+              number: 8080
